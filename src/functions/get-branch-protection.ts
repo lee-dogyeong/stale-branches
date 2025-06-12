@@ -29,14 +29,17 @@ export async function getBranchProtectionStatus(branchName: string): Promise<{is
   // Check branch protection
   try {
     const protection = await github.rest.repos.getBranchProtection({owner, repo, branch: branchName})
+    core.info(`Branch protection for ${branchName}: owner=${owner}, repo=${repo}, branch=${branchName}`)
     if (protection.data && protection.data.allow_deletions && protection.data.allow_deletions.enabled) {
       canDelete = true
     } else {
+      core.info(`Branch protection for ${branchName} does not allow deletions, ${JSON.stringify(protection.data)}`)
       isProtected = true
       protectionType = 'branch protection'
       canDelete = false
     }
   } catch (err) {
+    core.info(`Branch protection for ${branchName} not found, ${err}`)
     if ((err as any).status !== 404) {
       isProtected = true
       protectionType = 'error'
