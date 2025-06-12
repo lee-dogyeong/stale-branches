@@ -616,16 +616,19 @@ function getBranchProtectionStatus(branchName) {
         // Check branch protection
         try {
             const protection = yield get_context_1.github.rest.repos.getBranchProtection({ owner: get_context_1.owner, repo: get_context_1.repo, branch: branchName });
+            core.info(`Branch protection for ${branchName}: owner=${get_context_1.owner}, repo=${get_context_1.repo}, branch=${branchName}`);
             if (protection.data && protection.data.allow_deletions && protection.data.allow_deletions.enabled) {
                 canDelete = true;
             }
             else {
+                core.info(`Branch protection for ${branchName} does not allow deletions, ${JSON.stringify(protection.data)}`);
                 isProtected = true;
                 protectionType = 'branch protection';
                 canDelete = false;
             }
         }
         catch (err) {
+            core.info(`Branch protection for ${branchName} not found, ${err}`);
             if (err.status !== 404) {
                 isProtected = true;
                 protectionType = 'error';
